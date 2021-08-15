@@ -15,8 +15,6 @@ public class Main
 	
 	public static void main(String[] arg)
 	{
-		int aaasdasdasd = 12312;
-		
 		disk = new Disk();
 		disk.create();
 		
@@ -25,8 +23,6 @@ public class Main
 		
 		Scanner scanner = new Scanner(System.in);
 		
-		System.out.println("File system mounted.");
-
 		while(loop)
 		{
 			String[] line = scanner.nextLine().split(" ");

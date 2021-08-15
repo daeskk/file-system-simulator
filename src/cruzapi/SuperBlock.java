@@ -44,7 +44,7 @@ public class SuperBlock
 		return SUPER_BLOCK_SIZE;
 	}
 	
-	public int getBitMapSize()
+	public int getBitmapSize()
 	{
 		return blocks / 8;
 	}
