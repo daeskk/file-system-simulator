@@ -15,6 +15,8 @@ public class Main
 	
 	public static void main(String[] arg)
 	{
+		int aaasdasdasd = 12312;
+		
 		disk = new Disk();
 		disk.create();
 		
