@@ -23,6 +23,8 @@ public class Main
 		
 		Scanner scanner = new Scanner(System.in);
 		
+		System.out.println("File system mounted.");
+
 		while(loop)
 		{
 			String[] line = scanner.nextLine().split(" ");
