@@ -14,7 +14,7 @@ public class Disk
 {
 	private final File file;
 	
-	private Inode inode;
+	private Inode currentInode;
 	private FileOutputStream fout;
 	
 	public Disk()
@@ -59,7 +59,7 @@ public class Disk
 				
 				if(i == 1)
 				{
-					this.inode = inode;
+					this.currentInode = inode;
 					inode.previous(1);
 				}
 				
@@ -87,6 +87,7 @@ public class Disk
 			
 			getSuperBlock();
 			getBitmap();
+			getEmptyInode();
 		}
 		catch(IOException e)
 		{
@@ -115,7 +116,6 @@ public class Disk
 			for(int j = 7; j >= 0; j--)
 			{
 				bitmap[n + j] = (i % 2) == 1;
-				System.out.println(i + " " + (i % 2) + " " + bitmap[n + j]);
 				i /= 2;
 			}
 			
@@ -127,50 +127,30 @@ public class Disk
 		return null;
 	}
 	
-	public Inode getInodeByIndex(int index)
-	{
-		return null;
-	}
-	
 	public Inode getEmptyInode() throws IOException
 	{
-		FileInputStream fin = new FileInputStream(file);
-		DataInputStream din = new DataInputStream(fin);
-		
-		SuperBlock sb = getSuperBlock();
-		din.skipBytes(SuperBlock.SUPER_BLOCK_SIZE + sb.getBitmapSize());
-		
-		for(int index = 1; index <= sb.getInodes(); index++)
+		try(FileInputStream fin = new FileInputStream(file);
+			DataInputStream din = new DataInputStream(fin))
 		{
-			if(din.readInt() == 0)
+			SuperBlock sb = getSuperBlock();
+			din.skipBytes(SuperBlock.SUPER_BLOCK_SIZE + sb.getBitmapSize());
+			
+			for(int index = 1; index <= sb.getInodes(); index++)
 			{
-				System.out.println(index);
-				return new Inode(index);
+				int previous = din.readInt();
+				
+				if(previous == 0)
+				{
+					return new Inode(index);
+				}
+				
+				din.skipBytes(Inode.INODE_SIZE - 4);
 			}
 		}
-		
-		return null;
-		
-		
-//		byte[] data = din.readAllBytes();
-//		
-//		boolean[] bitmap = new boolean[data.length * 8];
-//		
-//		int n = 0;
-//		
-//		for(byte b : data)
-//		{
-//			int i = b + 128;
-//			
-//			for(int j = 7; j >= 0; j--)
-//			{
-//				bitmap[n + j] = i % 2 == 1;
-//				i /= 2;
-//				n++;
-//			}
-//		}
-//		
-//		fin.close();
+		catch(IOException e)
+		{
+			throw e;
+		}
 		
 		return null;
 	}
@@ -188,21 +168,43 @@ public class Disk
 		return new SuperBlock(magicNumber, blocks, blockSize);
 	}
 	
-	
-	
-	
-	public void mkdir(String dir)
+	public File getFile()
 	{
-		try
+		return file;
+	}
+	
+	public Inode getCurrentInode()
+	{
+		return currentInode;
+	}
+	
+	public void setCurrentInode(Inode inode)
+	{
+		currentInode = inode;
+	}
+	
+	public void mkdir(String dir) throws IOException
+	{
+		Inode target = getEmptyInode();
+		
+		if(target == null)
 		{
-			RandomAccessFile access = new RandomAccessFile(file, "rw");
-			access.seek(2L);
-			access.writeBoolean(true);
-//			access.
+			System.out.println("Inodes full.");
+			return;
 		}
-		catch(IOException e)
+		
+		if(!currentInode.addPointer(target.index()))
 		{
-			e.printStackTrace();
+			System.out.println("Current inode's pointer is full.");
+			return;
 		}
+		
+		target.setName(dir);
+		target.previous(currentInode.index());
+		
+		System.out.println(target);
+		
+		currentInode.rw();
+		target.rw();
 	}
 }

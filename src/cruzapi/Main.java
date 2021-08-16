@@ -4,9 +4,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 
+import command.Cd;
 import command.Command;
 import command.Exit;
+import command.Ls;
 import command.Mkdir;
+import command.Pwd;
 
 public class Main
 {
@@ -20,6 +23,9 @@ public class Main
 		
 		Command.register(new Exit("exit"));
 		Command.register(new Mkdir("mkdir"));
+		Command.register(new Ls("ls"));
+		Command.register(new Cd("cd"));
+		Command.register(new Pwd("pwd"));
 		
 		Scanner scanner = new Scanner(System.in);
 		

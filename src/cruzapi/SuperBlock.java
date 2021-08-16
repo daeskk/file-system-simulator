@@ -19,6 +19,11 @@ public class SuperBlock
 		this.blockSize = blockSize;
 	}
 	
+	public int getSize()
+	{
+		return SUPER_BLOCK_SIZE;
+	}
+	
 	public int getMagicNumber()
 	{
 		return magicNumber;

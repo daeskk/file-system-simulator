@@ -1,5 +1,7 @@
 package command;
 
+import java.io.IOException;
+
 import cruzapi.Main;
 
 public class Mkdir extends Command
@@ -20,7 +22,14 @@ public class Mkdir extends Command
 				return;
 			}
 			
-			Main.getDisk().mkdir(args[0]);
+			try
+			{
+				Main.getDisk().mkdir(args[0]);
+			}
+			catch(IOException e)
+			{
+				e.printStackTrace();
+			}
 		}
 		else
 		{
