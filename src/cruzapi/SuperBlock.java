@@ -19,6 +19,18 @@ public class SuperBlock
 		this.blockSize = blockSize;
 	}
 	
+	public int getInodeBitmapPosition()
+	{
+		return getSize();
+	}
+	
+	public int getBlockBitmapPosition()
+	{
+		return getSize() + getInodeBitmapSize();
+	}
+	
+	
+	
 	public int getSize()
 	{
 		return SUPER_BLOCK_SIZE;

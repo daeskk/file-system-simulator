@@ -1,7 +1,5 @@
 package cruzapi;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.Scanner;
 
 import command.Cd;
@@ -18,6 +16,8 @@ public class Main
 	
 	public static void main(String[] arg)
 	{
+		System.out.println("a");
+		
 		disk = new Disk();
 		disk.create();
 		

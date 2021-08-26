@@ -1,44 +1,60 @@
 package cruzapi;
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
 public class Disk
 {
+	public enum BitmapType
+	{
+		INODE, BLOCK;
+		
+		public int getPosition() throws IOException
+		{
+			switch(this)
+			{
+			case BLOCK:
+				return Main.getDisk().getSuperBlock().getBlockBitmapPosition();
+			case INODE:
+				return Main.getDisk().getSuperBlock().getInodeBitmapPosition();
+			}
+			
+			throw new IOException();
+		}
+		
+		public int getSize() throws IOException
+		{
+			switch(this)
+			{
+			case BLOCK:
+				return Main.getDisk().getSuperBlock().getBlockBitmapSize();
+			case INODE:
+				return Main.getDisk().getSuperBlock().getInodeBitmapSize();
+			}
+			
+			throw new IOException();
+		}
+	}
+	
 	private final File file;
 	
 	private Inode currentInode;
-	private FileOutputStream fout;
 	
 	public Disk()
 	{
-		file = new File(System.getProperty("user.home") + "/Desktop", "disco.dsc");;
+		file = new File(System.getProperty("user.home") + "/Desktop", "disco.dsc");
 	}
 	
 	public boolean create()
 	{
-		try
+		try(RandomAccessFile file = new RandomAccessFile(this.file, "rw"))
 		{
-			fout = new FileOutputStream(file);
-			
-			ByteArrayOutputStream bos = new ByteArrayOutputStream();
-			DataOutputStream dos = new DataOutputStream(bos);
-			
-			
 			SuperBlock sb = new SuperBlock();
 			
-			dos.writeInt(sb.getMagicNumber());
-			dos.writeInt(sb.getBlocks());
-			dos.writeInt(sb.getBlockSize());
-			
-			fout.write(bos.toByteArray());
+			file.writeInt(sb.getMagicNumber());
+			file.writeInt(sb.getBlocks());
+			file.writeInt(sb.getBlockSize());
 			
 			
 			byte[] inodeBitmap = new byte[sb.getInodeBitmapSize()];
@@ -48,7 +64,7 @@ public class Disk
 				inodeBitmap[i] = Byte.MIN_VALUE;
 			}
 			
-			fout.write(inodeBitmap);
+			file.write(inodeBitmap);
 			
 			
 			byte[] blockBitmap = new byte[sb.getBlockBitmapSize()];
@@ -58,56 +74,33 @@ public class Disk
 				blockBitmap[i] = Byte.MIN_VALUE;
 			}
 			
-			fout.write(blockBitmap);
+			file.write(blockBitmap);
 			
-			
-			bos.reset();
 			
 			for(int i = 1; i <= sb.getInodes(); i++)
 			{
 				Inode inode = new Inode(i);
-				
-//				if(i == 1)
-//				{
-//					this.currentInode = inode;
-//					inode.previous(1);
-//				}
-//				
-//				dos.writeInt(inode.previous());
-//				dos.writeChars(inode.getName());
-//				
-//				for(int j : inode.pointer())
-//				{
-//					dos.writeInt(j);
-//				}
+				inode.rw();
 			}
-			
-			fout.write(bos.toByteArray());
-			
 			
 			
 			for(int i = 0; i < sb.getBlocks(); i++)
 			{
-				fout.write(new byte[4096]);
+				file.write(new byte[4096]);
 			}
 			
 			
-			rwInodeBitmap(0, true);
-			rwInodeBitmap(1, true);
-			rwInodeBitmap(5, true);
-			rwInodeBitmap(6, true);
-			rwInodeBitmap(7, false);
-			rwInodeBitmap(8, false);
+			currentInode = getEmptyInode();
+			Block block = getEmptyBlock();
 			
-			for(boolean bool : getInodeBitmap())
-			{
-				System.out.println(bool);
-			}
+			currentInode.addPointer(block.index());
+			block.addEntry(new DirEntry(currentInode.index(), "/"));
+			block.addEntry(new DirEntry(currentInode.index(), "/"));
 			
-			getSuperBlock();
-			getBitmap();
-			getEmptyInode();
+			currentInode.rw();
+			block.rw();
 		}
+		
 		catch(IOException e)
 		{
 			e.printStackTrace();
@@ -116,13 +109,35 @@ public class Disk
 		return true;
 	}
 	
-	public void rwInodeBitmap(final int index, final boolean value) throws IOException
+	private Block getEmptyBlock() throws IOException
+	{
+		try(RandomAccessFile file = new RandomAccessFile(this.file, "rw"))
+		{
+			boolean[] bitmap = getBitmap(BitmapType.BLOCK);
+			
+			for(int i = 0; i < bitmap.length; i++)
+			{
+				if(!bitmap[i])
+				{
+					return new Block(i + 1);
+				}
+			}
+			
+			return null;
+		}
+		catch(IOException e)
+		{
+			throw e;
+		}
+	}
+
+	public void rwBitmap(final BitmapType type, final int index, final boolean value) throws IOException
 	{
 		try(RandomAccessFile file = new RandomAccessFile(this.file, "rw"))
 		{
 			SuperBlock sb = getSuperBlock();
 			
-			file.seek(sb.getSize() + index / 8);
+			file.seek(type.getPosition() + index / 8);
 			
 			final int bit = 7 - index % 8;
 			
@@ -144,20 +159,17 @@ public class Disk
 		}
 	}
 	
-	public boolean[] getInodeBitmap() throws IOException
+	public boolean[] getBitmap(BitmapType type) throws IOException
 	{
 		try(RandomAccessFile file = new RandomAccessFile(this.file, "rw"))
 		{
-			SuperBlock sb = getSuperBlock();
+			file.seek(type.getPosition());
 			
-			file.skipBytes(sb.getSize());
-			
-			final int bitmapSize = sb.getInodeBitmapSize();
-			final boolean[] bitmap = new boolean[bitmapSize * 8];
+			final boolean[] bitmap = new boolean[type.getSize() * 8];
 			
 			int n = 0;
 			
-			for(int i = 0; i < bitmapSize; i++)
+			for(int i = 0; i < type.getSize(); i++)
 			{
 				int b = file.readByte() + 128;
 				
@@ -178,54 +190,18 @@ public class Disk
 		}
 	}
 	
-	public boolean[] getBitmap() throws IOException
-	{
-		FileInputStream fin = new FileInputStream(file);
-		DataInputStream din = new DataInputStream(fin);
-		
-		din.skipBytes(SuperBlock.SUPER_BLOCK_SIZE);
-		
-		byte[] data = din.readNBytes(getSuperBlock().getBlockBitmapSize());
-		boolean[] bitmap = new boolean[data.length * 8];
-		
-		int n = 0;
-		
-		for(byte b : data)
-		{
-			int i = b + 128;
-			
-			for(int j = 7; j >= 0; j--)
-			{
-				bitmap[n + j] = (i % 2) == 1;
-				i /= 2;
-			}
-			
-			n += 8;
-		}
-		
-		fin.close();
-				
-		return null;
-	}
-	
 	public Inode getEmptyInode() throws IOException
 	{
-		try(FileInputStream fin = new FileInputStream(file);
-			DataInputStream din = new DataInputStream(fin))
+		try(RandomAccessFile file = new RandomAccessFile(this.file, "rw"))
 		{
-			SuperBlock sb = getSuperBlock();
-			din.skipBytes(SuperBlock.SUPER_BLOCK_SIZE + sb.getBlockBitmapSize());
+			boolean[] bitmap = getBitmap(BitmapType.INODE);
 			
-			for(int index = 1; index <= sb.getInodes(); index++)
+			for(int i = 0; i < bitmap.length; i++)
 			{
-				int previous = din.readInt();
-				
-				if(previous == 0)
+				if(!bitmap[i])
 				{
-					return new Inode(index);
+					return new Inode(i + 1);
 				}
-				
-				din.skipBytes(Inode.INODE_SIZE - 4);
 			}
 			
 			return null;
@@ -236,19 +212,13 @@ public class Disk
 		}
 	}
 	
-	public void writeInodeBitmap()
-	{
-		
-	}
-	
 	public SuperBlock getSuperBlock() throws IOException
 	{
-		try(FileInputStream fin = new FileInputStream(file);
-			DataInputStream din = new DataInputStream(fin))
+		try(RandomAccessFile file = new RandomAccessFile(this.file, "rw"))
 		{
-			final int magicNumber = din.readInt();
-			final int blocks = din.readInt();
-			final int blockSize = din.readInt();
+			final int magicNumber = file.readInt();
+			final int blocks = file.readInt();
+			final int blockSize = file.readInt();
 			
 			return new SuperBlock(magicNumber, blocks, blockSize);
 		}
@@ -275,7 +245,6 @@ public class Disk
 	
 	public boolean rm(Inode inode)
 	{
-		
 		return true;
 	}
 

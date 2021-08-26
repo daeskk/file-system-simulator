@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import cruzapi.Block;
+import cruzapi.DirEntry;
 import cruzapi.Disk;
 import cruzapi.Inode;
 import cruzapi.Main;
@@ -19,47 +21,58 @@ public class Pwd extends Command
 	@Override
 	public void execute(String[] args)
 	{
-		if(args.length == 0)
+		try
 		{
-			Disk disk = Main.getDisk();
-			Inode current = disk.getCurrentInode();
-			
-			List<String> list = new ArrayList<>();
-			
-//			while(current.index() != 1)
-//			{
-//				try
-//				{
-//					list.add(current.getBeautifulName());
-//					Inode previous = new Inode(current.previous());
-//					previous.readFully();
-//					current = previous;
-//				}
-//				catch(IOException e)
-//				{
-//					e.printStackTrace();
-//				}
-//			}
-			
-			Collections.reverse(list);
-			
-			String pwd = "";
-			
-			for(String dir : list)
+			if(args.length == 0)
 			{
-				pwd += "/" + dir;
+				Disk disk = Main.getDisk();
+				Inode current = disk.getCurrentInode();
+				
+				List<String> list = new ArrayList<>();
+				
+				Block block = new Block(current.pointer()[0]);
+				block.readFully();
+				
+				DirEntry d = block.getEntry(0);
+				DirEntry dd = block.getEntry(1);
+				
+				while(dd.getIndex() != 1)
+				{
+					list.add(d.getName());
+					Inode previous = new Inode(dd.getIndex());
+					previous.readFully();
+					current = previous;
+					block = new Block(current.pointer()[0]);
+					block.readFully();
+					d = block.getEntry(0);
+					dd = block.getEntry(1);
+				}
+				
+				Collections.reverse(list);
+				
+				String pwd = "";
+				
+				for(String dir : list)
+				{
+					pwd += "/" + dir;
+				}
+				
+				if(pwd.isEmpty())
+				{
+					pwd = "/";
+				}
+				
+				System.out.println(pwd);
+			}
+			else
+			{
+				System.out.println("Wrong syntax! Try: pwd");
 			}
 			
-			if(pwd.isEmpty())
-			{
-				pwd = "/";
-			}
-			
-			System.out.println(pwd);
 		}
-		else
+		catch(IOException ex)
 		{
-			System.out.println("Wrong syntax! Try: pwd");
+			ex.printStackTrace();
 		}
 	}
 }
