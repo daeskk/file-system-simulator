@@ -2,20 +2,20 @@ package cruzapi;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.io.Serializable;
 
-public class Block implements Serializable
+public class Block
 {
-	private byte[] data;
+	private final int index;
+	private byte[] data = new byte[10 << 12];
 	
-	public Block(int size)
+	public Block(int index)
 	{
-		data = new byte[size];
-		
-		for(int i = 0; i < data.length; i++)
-		{
-			data[i] = '0';
-		}
+		this.index = index;
+	}
+	
+	public int index()
+	{
+		return index;
 	}
 	
 	public byte[] getData()
@@ -26,5 +26,25 @@ public class Block implements Serializable
 	public int getSize()
 	{
 		return data.length;
+	}
+	
+	public void readFully() throws IOException
+	{
+		Disk disk = Main.getDisk();
+		SuperBlock sb = disk.getSuperBlock();
+		
+		try(RandomAccessFile access = new RandomAccessFile(disk.getFile(), "rw");)
+		{
+			access.skipBytes(sb.getSize() + sb.getBitmapSize() + sb.getInodesSize() + (index - 1) * sb.getBlockSize());
+			
+			for(int i = 0; i < data.length; i++)
+			{
+				data[i] = access.readByte();
+			}
+		}
+		catch(IOException e)
+		{
+			throw e;
+		}
 	}
 }

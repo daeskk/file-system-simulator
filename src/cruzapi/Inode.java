@@ -1,16 +1,15 @@
 package cruzapi;
 
-import static cruzapi.SuperBlock.SUPER_BLOCK_SIZE;
-
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.Arrays;
 
 public class Inode
 {
-	public static final int INODE_SIZE = 104;
+	public static final int INODE_SIZE = 105;
 	
 	private final int index;
+	private byte type;
 	private int previous;
 	private final char[] name = new char[26];
 	private final int[] pointer = new int[12];
@@ -108,6 +107,7 @@ public class Inode
 		{
 			access.skipBytes(sb.getSize() + sb.getBitmapSize() + (index - 1) * INODE_SIZE);
 			previous = access.readInt();
+			type = access.readByte();
 			
 			for(int i = 0; i < name.length; i++)
 			{
@@ -134,6 +134,7 @@ public class Inode
 		{
 			access.skipBytes(sb.getSize() + sb.getBitmapSize() + (index - 1) * INODE_SIZE);
 			access.writeInt(previous);
+			access.write(type);
 			access.writeChars(getName());
 			
 			for(int j : pointer)
@@ -153,9 +154,9 @@ public class Inode
 	}
 
 	@Override
-	public String toString() {
+	public String toString()
+	{
 		return "Inode [index=" + index + ", previous=" + previous + ", name=" + getBeautifulName() + ", pointer="
 				+ Arrays.toString(pointer) + "]";
 	}
-	
 }

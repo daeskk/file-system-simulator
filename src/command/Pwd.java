@@ -59,7 +59,7 @@ public class Pwd extends Command
 		}
 		else
 		{
-			System.out.println("Wrong syntax! Try: mkdir <name>");
+			System.out.println("Wrong syntax! Try: pwd");
 		}
 	}
 }

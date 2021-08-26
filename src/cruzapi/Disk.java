@@ -75,11 +75,11 @@ public class Disk
 			fout.write(bos.toByteArray());
 			
 			
-//			
-//			for(int i = 0; i < sb.getBlocks(); i++)
-//			{
-//				fout.write(new byte[4096]);
-//			}
+			
+			for(int i = 0; i < sb.getBlocks(); i++)
+			{
+				fout.write(new byte[4096]);
+			}
 			
 			
 			
@@ -146,26 +146,30 @@ public class Disk
 				
 				din.skipBytes(Inode.INODE_SIZE - 4);
 			}
+			
+			return null;
 		}
 		catch(IOException e)
 		{
 			throw e;
 		}
-		
-		return null;
 	}
 	
 	public SuperBlock getSuperBlock() throws IOException
 	{
-		FileInputStream fin = new FileInputStream(file);
-		DataInputStream din = new DataInputStream(fin);
-		
-		final int magicNumber = din.readInt();
-		final int blocks = din.readInt();
-		final int blockSize = din.readInt();
-		fin.close();
-		
-		return new SuperBlock(magicNumber, blocks, blockSize);
+		try(FileInputStream fin = new FileInputStream(file);
+			DataInputStream din = new DataInputStream(fin))
+		{
+			final int magicNumber = din.readInt();
+			final int blocks = din.readInt();
+			final int blockSize = din.readInt();
+			
+			return new SuperBlock(magicNumber, blocks, blockSize);
+		}
+		catch(IOException e)
+		{
+			throw e;
+		}
 	}
 	
 	public File getFile()
@@ -183,6 +187,12 @@ public class Disk
 		currentInode = inode;
 	}
 	
+	public boolean rm(Inode inode)
+	{
+		
+		return true;
+	}
+
 	public void mkdir(String dir) throws IOException
 	{
 		Inode target = getEmptyInode();
