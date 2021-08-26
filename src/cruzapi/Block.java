@@ -35,7 +35,7 @@ public class Block
 		
 		try(RandomAccessFile access = new RandomAccessFile(disk.getFile(), "rw");)
 		{
-			access.skipBytes(sb.getSize() + sb.getBitmapSize() + sb.getInodesSize() + (index - 1) * sb.getBlockSize());
+			access.skipBytes(sb.getSize() + sb.getBlockBitmapSize() + sb.getInodesSize() + (index - 1) * sb.getBlockSize());
 			
 			for(int i = 0; i < data.length; i++)
 			{

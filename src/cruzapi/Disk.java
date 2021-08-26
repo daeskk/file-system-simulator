@@ -41,14 +41,24 @@ public class Disk
 			fout.write(bos.toByteArray());
 			
 			
-			byte[] bitmap = new byte[sb.getBlocks() / 8];
+			byte[] inodeBitmap = new byte[sb.getInodeBitmapSize()];
 			
-			for(int i = 0; i < bitmap.length; i++)
+			for(int i = 0; i < inodeBitmap.length; i++)
 			{
-				bitmap[i] = Byte.MAX_VALUE;
+				inodeBitmap[i] = Byte.MIN_VALUE;
 			}
 			
-			fout.write(bitmap);
+			fout.write(inodeBitmap);
+			
+			
+			byte[] blockBitmap = new byte[sb.getBlockBitmapSize()];
+			
+			for(int i = 0; i < blockBitmap.length; i++)
+			{
+				blockBitmap[i] = Byte.MIN_VALUE;
+			}
+			
+			fout.write(blockBitmap);
 			
 			
 			bos.reset();
@@ -57,19 +67,19 @@ public class Disk
 			{
 				Inode inode = new Inode(i);
 				
-				if(i == 1)
-				{
-					this.currentInode = inode;
-					inode.previous(1);
-				}
-				
-				dos.writeInt(inode.previous());
-				dos.writeChars(inode.getName());
-				
-				for(int j : inode.pointer())
-				{
-					dos.writeInt(j);
-				}
+//				if(i == 1)
+//				{
+//					this.currentInode = inode;
+//					inode.previous(1);
+//				}
+//				
+//				dos.writeInt(inode.previous());
+//				dos.writeChars(inode.getName());
+//				
+//				for(int j : inode.pointer())
+//				{
+//					dos.writeInt(j);
+//				}
 			}
 			
 			fout.write(bos.toByteArray());
@@ -82,8 +92,17 @@ public class Disk
 			}
 			
 			
+			rwInodeBitmap(0, true);
+			rwInodeBitmap(1, true);
+			rwInodeBitmap(5, true);
+			rwInodeBitmap(6, true);
+			rwInodeBitmap(7, false);
+			rwInodeBitmap(8, false);
 			
-			System.out.println("a");
+			for(boolean bool : getInodeBitmap())
+			{
+				System.out.println(bool);
+			}
 			
 			getSuperBlock();
 			getBitmap();
@@ -97,6 +116,68 @@ public class Disk
 		return true;
 	}
 	
+	public void rwInodeBitmap(final int index, final boolean value) throws IOException
+	{
+		try(RandomAccessFile file = new RandomAccessFile(this.file, "rw"))
+		{
+			SuperBlock sb = getSuperBlock();
+			
+			file.seek(sb.getSize() + index / 8);
+			
+			final int bit = 7 - index % 8;
+			
+			int b1 = file.readByte() + 128;
+			int b2 = Byte.MIN_VALUE;
+			
+			for(int j = 0; j < 8; j++)
+			{
+				b2 += bit == j ? value ? 1 << j : 0 : (b1 % 2) == 1 ? 1 << j : 0;
+				b1 /= 2;
+			}
+			
+			file.seek(sb.getSize() + index / 8);
+			file.write(b2);
+		}
+		catch(IOException ex)
+		{
+			throw ex;
+		}
+	}
+	
+	public boolean[] getInodeBitmap() throws IOException
+	{
+		try(RandomAccessFile file = new RandomAccessFile(this.file, "rw"))
+		{
+			SuperBlock sb = getSuperBlock();
+			
+			file.skipBytes(sb.getSize());
+			
+			final int bitmapSize = sb.getInodeBitmapSize();
+			final boolean[] bitmap = new boolean[bitmapSize * 8];
+			
+			int n = 0;
+			
+			for(int i = 0; i < bitmapSize; i++)
+			{
+				int b = file.readByte() + 128;
+				
+				for(int j = 7; j >= 0; j--)
+				{
+					bitmap[n + j] = (b % 2) == 1;
+					b /= 2;
+				}
+				
+				n += 8;
+			}
+			
+			return bitmap;
+		}
+		catch(IOException ex)
+		{
+			throw ex;
+		}
+	}
+	
 	public boolean[] getBitmap() throws IOException
 	{
 		FileInputStream fin = new FileInputStream(file);
@@ -104,7 +185,7 @@ public class Disk
 		
 		din.skipBytes(SuperBlock.SUPER_BLOCK_SIZE);
 		
-		byte[] data = din.readNBytes(getSuperBlock().getBitmapSize());
+		byte[] data = din.readNBytes(getSuperBlock().getBlockBitmapSize());
 		boolean[] bitmap = new boolean[data.length * 8];
 		
 		int n = 0;
@@ -133,7 +214,7 @@ public class Disk
 			DataInputStream din = new DataInputStream(fin))
 		{
 			SuperBlock sb = getSuperBlock();
-			din.skipBytes(SuperBlock.SUPER_BLOCK_SIZE + sb.getBitmapSize());
+			din.skipBytes(SuperBlock.SUPER_BLOCK_SIZE + sb.getBlockBitmapSize());
 			
 			for(int index = 1; index <= sb.getInodes(); index++)
 			{
@@ -153,6 +234,11 @@ public class Disk
 		{
 			throw e;
 		}
+	}
+	
+	public void writeInodeBitmap()
+	{
+		
 	}
 	
 	public SuperBlock getSuperBlock() throws IOException
@@ -195,26 +281,26 @@ public class Disk
 
 	public void mkdir(String dir) throws IOException
 	{
-		Inode target = getEmptyInode();
-		
-		if(target == null)
-		{
-			System.out.println("Inodes full.");
-			return;
-		}
-		
-		if(!currentInode.addPointer(target.index()))
-		{
-			System.out.println("Current inode's pointer is full.");
-			return;
-		}
-		
-		target.setName(dir);
-		target.previous(currentInode.index());
-		
-		System.out.println(target);
-		
-		currentInode.rw();
-		target.rw();
+//		Inode target = getEmptyInode();
+//		
+//		if(target == null)
+//		{
+//			System.out.println("Inodes full.");
+//			return;
+//		}
+//		
+//		if(!currentInode.addPointer(target.index()))
+//		{
+//			System.out.println("Current inode's pointer is full.");
+//			return;
+//		}
+//		
+//		target.setName(dir);
+//		target.previous(currentInode.index());
+//		
+//		System.out.println(target);
+//		
+//		currentInode.rw();
+//		target.rw();
 	}
 }

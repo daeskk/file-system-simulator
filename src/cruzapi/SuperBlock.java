@@ -4,7 +4,7 @@ public class SuperBlock
 {
 	public static final int SUPER_BLOCK_SIZE = 12;
 	private int magicNumber = 0xEF53;
-	private int blocks = 25545;
+	private int blocks = 8 * 10;
 	private int blockSize = 1 << 12;
 	
 	public SuperBlock()
@@ -41,7 +41,7 @@ public class SuperBlock
 	
 	public int getInodes()
 	{
-		return blocks / 12;
+		return blocks;
 	}
 	
 	public int getSuperBlockSize()
@@ -49,7 +49,12 @@ public class SuperBlock
 		return SUPER_BLOCK_SIZE;
 	}
 	
-	public int getBitmapSize()
+	public int getInodeBitmapSize()
+	{
+		return getInodes() / 8;
+	}
+	
+	public int getBlockBitmapSize()
 	{
 		return blocks / 8;
 	}

@@ -26,20 +26,20 @@ public class Pwd extends Command
 			
 			List<String> list = new ArrayList<>();
 			
-			while(current.index() != 1)
-			{
-				try
-				{
-					list.add(current.getBeautifulName());
-					Inode previous = new Inode(current.previous());
-					previous.readFully();
-					current = previous;
-				}
-				catch(IOException e)
-				{
-					e.printStackTrace();
-				}
-			}
+//			while(current.index() != 1)
+//			{
+//				try
+//				{
+//					list.add(current.getBeautifulName());
+//					Inode previous = new Inode(current.previous());
+//					previous.readFully();
+//					current = previous;
+//				}
+//				catch(IOException e)
+//				{
+//					e.printStackTrace();
+//				}
+//			}
 			
 			Collections.reverse(list);
 			
