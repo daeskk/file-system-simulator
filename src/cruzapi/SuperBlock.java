@@ -4,7 +4,7 @@ public class SuperBlock
 {
 	public static final int SUPER_BLOCK_SIZE = 12;
 	private int magicNumber = 0xEF53;
-	private int blocks = 8 * 10;
+	private int blocks = 1000 * 8;
 	private int blockSize = 1 << 12;
 	
 	public SuperBlock()

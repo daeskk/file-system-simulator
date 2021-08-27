@@ -83,7 +83,6 @@ public class Disk
 				inode.rw();
 			}
 			
-			
 			for(int i = 0; i < sb.getBlocks(); i++)
 			{
 				file.write(new byte[4096]);
@@ -97,10 +96,21 @@ public class Disk
 			block.addEntry(new DirEntry(currentInode.index(), "/"));
 			block.addEntry(new DirEntry(currentInode.index(), "/"));
 			
+			currentInode.setInUse(true);
 			currentInode.rw();
+			
+			block.setInUse(true);
 			block.rw();
+			
+			
+			
+			boolean[] blockBitmap1 = getBitmap(BitmapType.BLOCK);
+			
+			for(int i = 0; i < 10; i++)
+			{
+				System.out.println("bitmap[" + i + "]" + blockBitmap1[i]);
+			}
 		}
-		
 		catch(IOException e)
 		{
 			e.printStackTrace();
@@ -136,7 +146,8 @@ public class Disk
 		try(RandomAccessFile file = new RandomAccessFile(this.file, "rw"))
 		{
 			SuperBlock sb = getSuperBlock();
-			
+			System.out.println(type.name());
+			System.out.println(type.getPosition() + " POSITION");
 			file.seek(type.getPosition() + index / 8);
 			
 			final int bit = 7 - index % 8;
@@ -172,6 +183,11 @@ public class Disk
 			for(int i = 0; i < type.getSize(); i++)
 			{
 				int b = file.readByte() + 128;
+				
+				if(i == 0)
+				{
+					System.out.println(b + " BYTE");
+				}
 				
 				for(int j = 7; j >= 0; j--)
 				{
@@ -250,26 +266,56 @@ public class Disk
 
 	public void mkdir(String dir) throws IOException
 	{
-//		Inode target = getEmptyInode();
-//		
-//		if(target == null)
-//		{
-//			System.out.println("Inodes full.");
-//			return;
-//		}
-//		
-//		if(!currentInode.addPointer(target.index()))
-//		{
-//			System.out.println("Current inode's pointer is full.");
-//			return;
-//		}
-//		
-//		target.setName(dir);
-//		target.previous(currentInode.index());
-//		
-//		System.out.println(target);
-//		
-//		currentInode.rw();
-//		target.rw();
+		Inode target = getEmptyInode();
+		
+		if(target == null)
+		{
+			System.out.println("No empty inode available.");
+			return;
+		}
+		
+		DirEntry entry = new DirEntry(target.index(), dir);
+		
+		Block newBlock = getEmptyBlock();
+		
+		if(newBlock == null)
+		{
+			System.out.println("No empty block available.");
+			return;
+		}
+		
+		target.addPointer(newBlock.index());
+		newBlock.setInUse(true);
+		newBlock.addEntry(entry);
+		
+		for(int i = 0; i < currentInode.pointer().length; i++)
+		{
+			Block block = new Block(currentInode.pointer()[i]);
+			
+			if(block.index() == 0)
+			{
+				block = getEmptyBlock();
+			}
+			
+			block.readFully();
+			
+			if(i == 0)
+			{
+				newBlock.addEntry(block.getEntry(0));
+			}
+			
+			if(block.addEntry(entry))
+			{
+				block.setInUse(true);
+				target.setInUse(true);
+				block.rw();
+				target.rw();
+				newBlock.rw();
+				return;
+			}
+		}
+		
+		newBlock.setInUse(false);
+		System.out.println("Current inode's pointer is full.");
 	}
 }

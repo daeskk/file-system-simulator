@@ -29,4 +29,10 @@ public class DirEntry
 	{
 		return index;
 	}
+	
+	@Override
+	public String toString()
+	{
+		return "[index=" + index + ", name=" + getName() + "]";
+	}
 }

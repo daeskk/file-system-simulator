@@ -1,7 +1,12 @@
 package command;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
+import cruzapi.Block;
+import cruzapi.DirEntry;
 import cruzapi.Disk;
 import cruzapi.Inode;
 import cruzapi.Main;
@@ -16,38 +21,47 @@ public class Ls extends Command
 	@Override
 	public void execute(String[] args)
 	{
-//		if(args.length == 0)
-//		{
-//			Disk disk = Main.getDisk();
-//			
-//			Inode current = disk.getCurrentInode();
-//			
-//			for(int pointer : current.pointer())
-//			{
-//				if(pointer <= 0)
-//				{
-//					continue;
-//				}
-//				
-//				Inode inode = new Inode(pointer);
-//				
-//				try
-//				{
-//					inode.readName();
-//					System.out.print(inode.getBeautifulName() + " ");
-//				}
-//				catch(IOException e)
-//				{
-//					e.printStackTrace();
-//				}
-//				
-//			}
-//			
-//			System.out.println();
-//		}
-//		else
-//		{
-//			System.out.println("Wrong syntax! Try: ls");
-//		}
+		try
+		{
+			if(args.length == 0)
+			{
+				Disk disk = Main.getDisk();
+				
+				Inode current = disk.getCurrentInode();
+				
+				List<DirEntry> entries = new ArrayList<>();
+				
+				for(int i = 0; i < current.pointer().length; i++)
+				{
+					int index = current.pointer()[i];
+					
+					if(index == 0)
+					{
+						break;
+					}
+					
+					Block b = new Block(index);
+					
+					b.readFully();
+					
+					for(int a = 0; a < 100; a++)
+					{
+						System.out.println(b.getData()[a]);
+					}
+					
+					entries.addAll(b.getEntries());
+				}
+				
+				System.out.println(entries.stream().map(name -> name.getName()).collect(Collectors.toList()));
+			}
+			else
+			{
+				System.out.println("Wrong syntax! Try: ls");
+			}
+		}
+		catch(IOException ex)
+		{
+			ex.printStackTrace();
+		}
 	}
 }

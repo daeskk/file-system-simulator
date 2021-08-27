@@ -6,6 +6,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.util.ArrayList;
 import java.util.List;
 
 import cruzapi.Disk.BitmapType;
@@ -45,7 +46,7 @@ public class Block
 		return Main.getDisk().getBitmap(BitmapType.BLOCK)[index - 1];
 	}
 	
-	public void addEntry(DirEntry entry) throws IOException
+	public boolean addEntry(DirEntry entry) throws IOException
 	{
 		try(ByteArrayOutputStream bout = new ByteArrayOutputStream();
 		DataOutputStream dout = new DataOutputStream(bout))
@@ -59,12 +60,19 @@ public class Block
 			
 			byte[] data = bout.toByteArray();
 			
-			for(int i = getEmptySlot(), j = 0; j < data.length; i++, j++)
+			int slot = getEmptySlot();
+			System.out.println("index " + index + " slot " + slot + " entry " + entry);
+			if(slot == -1)
 			{
-				this.data[i] = data[j];
+				return false;
 			}
 			
-			getEmptySlot();
+			for(int j = 0; j < data.length; slot++, j++)
+			{
+				this.data[slot] = data[j];
+			}
+			
+			return true;
 		}
 		catch(IOException ex)
 		{
@@ -107,13 +115,30 @@ public class Block
 		try(ByteArrayInputStream bin = new ByteArrayInputStream(data);
 		DataInputStream din = new DataInputStream(bin);)
 		{
+			List<DirEntry> list = new ArrayList<>();
+			
 			for(int i = 0; i < getSize(); i += 32)
 			{
-				din.readInt();
-				din.skipBytes(28);
+				int index = din.readInt();
+				
+				if(index != 0)
+				{
+					DirEntry entry = new DirEntry(index);
+					
+					for(int j = 0; j < entry.name.length; j++)
+					{
+						entry.name[j] = din.readChar();
+					}
+					
+					list.add(entry);
+				}
+				else
+				{
+					din.skipBytes(28);
+				}
 			}
 			
-			return null;
+			return list;
 		}
 		catch(IOException ex)
 		{
