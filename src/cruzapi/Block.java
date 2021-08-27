@@ -13,7 +13,7 @@ import cruzapi.Disk.BitmapType;
 
 public class Block
 {
-	private final int index;
+	private int index;
 	private byte[] data = new byte[10 << 12];
 	
 	public Block(int index)

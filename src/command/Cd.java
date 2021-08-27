@@ -30,33 +30,30 @@ public class Cd extends Command
             }
             else if(dir.equals(".."))
             {
-                try {
+                try
+                {
                     Block block = new Block(current.pointer()[0]);
                     block.readFully();
 
-                    for(int i = 0; i < 30; i++)
-                    {
-                        System.out.println(block.getData()[i]);
-                    }
-
-                    current = new Inode(block.getEntry(1).getIndex());
+                    current = new Inode(block.getEntries().get(1).getIndex());
                     current.readFully();
 
                     disk.setCurrentInode(current);
+
+                    System.out.println("Changed to \"" +  block.getEntries().get(1).getName() + "\" dir.");
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
             else
             {
-                try {
-
+                try
+                {
                     for(int i = 0; i < current.pointer().length; i++)
                     {
                         Block block = new Block(current.pointer()[i]);
 
                         if(block.index() == 0) continue;
-
                         block.readFully();
 
                         for(DirEntry entry : block.getEntries())
@@ -66,7 +63,7 @@ public class Cd extends Command
                                 current = new Inode(entry.getIndex());
                                 current.readFully();
                                 disk.setCurrentInode(current);
-                                System.out.println("Changed to \"" +  entry.getName() + "\" dir.");
+                                System.out.println("Changed to \"" +  entry.getName() + "\" directory.");
                                 return;
                             }
                         }
