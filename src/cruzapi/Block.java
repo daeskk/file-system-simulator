@@ -14,7 +14,7 @@ import cruzapi.Disk.BitmapType;
 public class Block
 {
 	private int index;
-	private byte[] data = new byte[10 << 12];
+	private byte[] data = new byte[1 << 12];
 	
 	public Block(int index)
 	{
@@ -181,6 +181,10 @@ public class Block
 			for(int i = 0; i < data.length; i++)
 			{
 				data[i] = access.readByte();
+				if(data[i] != 0)
+				{
+					System.out.println(data[i] + " !!!!! " + i);
+				}
 			}
 		}
 		catch(IOException e)
