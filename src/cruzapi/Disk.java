@@ -79,8 +79,10 @@ public class Disk
 			
 			for(int i = 1; i <= sb.getInodes(); i++)
 			{
-				Inode inode = new Inode(i);
-				inode.rw();
+				for(int j = 0; j < 13; j++)
+				{
+					file.writeInt(0);
+				}
 			}
 			
 			for(int i = 0; i < sb.getBlocks(); i++)
@@ -105,11 +107,6 @@ public class Disk
 			
 			
 			boolean[] blockBitmap1 = getBitmap(BitmapType.BLOCK);
-			
-			for(int i = 0; i < 10; i++)
-			{
-				System.out.println("bitmap[" + i + "]" + blockBitmap1[i]);
-			}
 		}
 		catch(IOException e)
 		{
@@ -145,9 +142,6 @@ public class Disk
 	{
 		try(RandomAccessFile file = new RandomAccessFile(this.file, "rw"))
 		{
-			SuperBlock sb = getSuperBlock();
-			System.out.println(type.name());
-			System.out.println(type.getPosition() + " POSITION");
 			file.seek(type.getPosition() + index / 8);
 			
 			final int bit = 7 - index % 8;
@@ -161,7 +155,7 @@ public class Disk
 				b1 /= 2;
 			}
 			
-			file.seek(sb.getSize() + index / 8);
+			file.seek(type.getPosition() + index / 8);
 			file.write(b2);
 		}
 		catch(IOException ex)
@@ -183,11 +177,6 @@ public class Disk
 			for(int i = 0; i < type.getSize(); i++)
 			{
 				int b = file.readByte() + 128;
-				
-				if(i == 0)
-				{
-					System.out.println(b + " BYTE");
-				}
 				
 				for(int j = 7; j >= 0; j--)
 				{
