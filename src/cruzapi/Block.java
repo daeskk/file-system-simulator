@@ -181,10 +181,6 @@ public class Block
 			for(int i = 0; i < data.length; i++)
 			{
 				data[i] = access.readByte();
-				if(data[i] != 0)
-				{
-					System.out.println(data[i] + " !!!!! " + i);
-				}
 			}
 		}
 		catch(IOException e)

@@ -36,7 +36,7 @@ public class Pwd extends Command
 				DirEntry d = block.getEntry(0);
 				DirEntry dd = block.getEntry(1);
 				
-				while(dd.getIndex() != 1)
+				while(d.getIndex() != 1)
 				{
 					list.add(d.getName());
 					Inode previous = new Inode(dd.getIndex());

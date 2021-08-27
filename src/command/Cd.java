@@ -34,8 +34,8 @@ public class Cd extends Command
                 {
                     Block block = new Block(current.pointer()[0]);
                     block.readFully();
-                    block.getEntry(0);
-                    current = new Inode(block.getEntries().get(1).getIndex());
+                    
+                    current = new Inode(block.getEntry(1).getIndex());
                     current.readFully();
 
                     disk.setCurrentInode(current);
