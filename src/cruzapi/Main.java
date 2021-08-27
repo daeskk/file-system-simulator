@@ -1,5 +1,6 @@
 package cruzapi;
 
+import java.io.IOException;
 import java.util.Scanner;
 
 import command.Cd;
@@ -14,12 +15,23 @@ public class Main
 	public static boolean loop = true;
 	private static Disk disk;
 	
-	public static void main(String[] arg)
+	public static void main(String[] arg) throws IOException
 	{
-		System.out.println("a");
+		System.out.println("Creating disk...");
+		
+		long time = System.currentTimeMillis();
 		
 		disk = new Disk();
 		disk.create();
+		
+		System.out.println("Done! (" + (System.currentTimeMillis() - time) + " ms)");
+		
+		for(int i = 0; i < 120; i++)
+		{
+			System.out.println(i);
+			disk.mkdir("test" + i);
+		}
+		
 		
 		Command.register(new Exit("exit"));
 		Command.register(new Mkdir("mkdir"));

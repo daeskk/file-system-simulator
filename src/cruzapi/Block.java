@@ -61,7 +61,7 @@ public class Block
 			byte[] data = bout.toByteArray();
 			
 			int slot = getEmptySlot();
-			System.out.println("index " + index + " slot " + slot + " entry " + entry);
+			
 			if(slot == -1)
 			{
 				return false;

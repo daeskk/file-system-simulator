@@ -47,27 +47,7 @@ public class Inode
 		
 		return false;
 	}
-//	
-//	public void readName() throws IOException
-//	{
-//		Disk disk = Main.getDisk();
-//		SuperBlock sb = disk.getSuperBlock();
-//		
-//		try(RandomAccessFile access = new RandomAccessFile(disk.getFile(), "rw");)
-//		{
-//			access.skipBytes(sb.getSize() + sb.getBlockBitmapSize() + (index - 1) * INODE_SIZE + 4);
-//			
-//			for(int i = 0; i < name.length; i++)
-//			{
-//				name[i] = access.readChar();
-//			}
-//		}
-//		catch(IOException e)
-//		{
-//			throw e;
-//		}
-//	}
-//	
+	
 	public void readFully() throws IOException
 	{
 		Disk disk = Main.getDisk();

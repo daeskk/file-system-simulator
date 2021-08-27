@@ -44,13 +44,11 @@ public class Ls extends Command
 					
 					b.readFully();
 					
-					for(int a = 0; a < 100; a++)
-					{
-						System.out.println(b.getData()[a]);
-					}
-					
 					entries.addAll(b.getEntries());
 				}
+				
+				entries.remove(0);
+				entries.remove(0);
 				
 				System.out.println(entries.stream().map(name -> name.getName()).collect(Collectors.toList()));
 			}
