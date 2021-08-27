@@ -26,11 +26,11 @@ public class Main
 		
 		System.out.println("Done! (" + (System.currentTimeMillis() - time) + " ms)");
 		
-		for(int i = 0; i < 120; i++)
-		{
-			System.out.println(i);
-			disk.mkdir("test" + i);
-		}
+//		for(int i = 0; i < 120; i++)
+//		{
+//			System.out.println(i);
+//			disk.mkdir("test" + i);
+//		}
 		
 		
 		Command.register(new Exit("exit"));
