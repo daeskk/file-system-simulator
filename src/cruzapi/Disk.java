@@ -46,6 +46,12 @@ public class Disk
 		file = new File(System.getProperty("user.home") + "/Desktop", "disco.dsc");
 	}
 	
+	public void format()
+	{
+		file.delete();
+		create();
+	}
+	
 	public boolean create()
 	{
 		try(RandomAccessFile file = new RandomAccessFile(this.file, "rw"))

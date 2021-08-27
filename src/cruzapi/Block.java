@@ -112,12 +112,19 @@ public class Block
 	
 	public List<DirEntry> getEntries() throws IOException
 	{
+		return getEntries(0);
+	}
+	
+	public List<DirEntry> getEntries(int from) throws IOException
+	{
 		try(ByteArrayInputStream bin = new ByteArrayInputStream(data);
 		DataInputStream din = new DataInputStream(bin);)
 		{
 			List<DirEntry> list = new ArrayList<>();
 			
-			for(int i = 0; i < getSize(); i += 32)
+			din.skipBytes(from * 32);
+			
+			for(int i = from * 32; i < getSize(); i += 32)
 			{
 				int index = din.readInt();
 				
@@ -204,5 +211,37 @@ public class Block
 		{
 			throw ex;
 		}
+	}
+	
+	public void setEntry(int index, DirEntry entry) throws IOException
+	{
+		try(ByteArrayOutputStream bout = new ByteArrayOutputStream();
+		DataOutputStream dout = new DataOutputStream(bout))
+		{
+			dout.writeInt(entry.getIndex());
+			
+			for(char c : entry.name)
+			{
+				dout.writeChar(c);
+			}
+			
+			byte[] data = bout.toByteArray();
+			
+			int slot = index * 32;
+			
+			for(int j = 0; j < data.length; slot++, j++)
+			{
+				this.data[slot] = data[j];
+			}
+		}
+		catch(IOException ex)
+		{
+			throw ex;
+		}
+	}
+	
+	public void clear()
+	{
+		data = new byte[1 << 12];
 	}
 }

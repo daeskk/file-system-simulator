@@ -13,7 +13,7 @@ public class Inode
 		FILE, DIR;
 	}
 	
-	public static final int INODE_SIZE = 105;
+	public static final int INODE_SIZE = 49;
 	
 	private final int index;
 	private byte type;
@@ -98,6 +98,16 @@ public class Inode
 		catch(IOException e)
 		{
 			throw e;
+		}
+	}
+	
+	public void clear()
+	{
+		type = 0;
+		
+		for(int i = 0; i < pointer.length; i++)
+		{
+			pointer[i] = 0;
 		}
 	}
 	

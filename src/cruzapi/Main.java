@@ -6,9 +6,11 @@ import java.util.Scanner;
 import command.Cd;
 import command.Command;
 import command.Exit;
+import command.Format;
 import command.Ls;
 import command.Mkdir;
 import command.Pwd;
+import command.Rm;
 
 public class Main
 {
@@ -38,6 +40,8 @@ public class Main
 		Command.register(new Ls("ls"));
 		Command.register(new Cd("cd"));
 		Command.register(new Pwd("pwd"));
+		Command.register(new Format("format"));
+		Command.register(new Rm("rm"));
 		
 		Scanner scanner = new Scanner(System.in);
 		
