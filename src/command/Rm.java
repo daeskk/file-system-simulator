@@ -42,10 +42,10 @@ public class Rm extends Command
 					b.readFully();
 					
 					List<DirEntry> list = b.getEntries();
-					System.out.println(list);
+					
 					for(int j = i == 0 ? 2 : 0; j < list.size(); j++)
 					{
-						DirEntry entry = list.get(i);
+						DirEntry entry = list.get(j);
 						
 						if(dir.equalsIgnoreCase(entry.getName()))
 						{
