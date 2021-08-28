@@ -56,7 +56,7 @@ public class Cd extends Command
                         if(block.index() == 0) continue;
                         block.readFully();
 
-                        for(DirEntry entry : block.getEntries())
+                        for(DirEntry entry : block.getEntries(i == 0 ? 2 : 0))
                         {
                             if(dir.equalsIgnoreCase(entry.getName()))
                             {
