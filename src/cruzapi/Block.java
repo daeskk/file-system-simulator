@@ -16,6 +16,16 @@ public class Block
 	private int index;
 	private byte[] data = new byte[1 << 12];
 	
+	public Block(int index, boolean readFully) throws IOException
+	{
+		this(index);
+		
+		if(readFully)
+		{
+			readFully();
+		}
+	}
+	
 	public Block(int index)
 	{
 		this.index = index;

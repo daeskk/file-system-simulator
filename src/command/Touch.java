@@ -8,10 +8,11 @@ import cruzapi.DirEntry;
 import cruzapi.Disk;
 import cruzapi.Inode;
 import cruzapi.Main;
+import cruzapi.Inode.Type;
 
-public class Cp extends Command
+public class Touch extends Command
 {
-	public Cp(String name)
+	public Touch(String name)
 	{
 		super(name);
 	}
@@ -21,23 +22,31 @@ public class Cp extends Command
 	{
 		try
 		{
-			if(args.length == 2)
+			if(args.length == 1)
 			{
 				Disk disk = Main.getDisk();
 				
 				Inode arg0 = args[0].startsWith("/") ? new Inode(1, true) : disk.getCurrentInode();
-				Inode arg1 = args[1].startsWith("/") ? new Inode(1, true) : disk.getCurrentInode();
 				
 				DirEntry entry0 = disk.getEntryByPath(new Block(arg0.pointer()[0], true).getEntry(0), Arrays.stream(args[0].split("/")).filter(x -> !x.isEmpty()).toArray(String[]::new), 0);
-				DirEntry entry1 = disk.getEntryByPath(new Block(arg1.pointer()[0], true).getEntry(0), Arrays.stream(args[1].split("/")).filter(x -> !x.isEmpty()).toArray(String[]::new), 0);
 				
-				if(entry0 == null || entry1 == null)
+				if(entry0 == null)
 				{
-					System.out.println("File not found.");
+					System.out.println("Directory not found.");
 					return;
 				}
 				
-				Inode inode1 = new Inode(entry1.getIndex(), true);
+				Inode inode1 = new Inode(entry0.getIndex(), true);
+				
+				Inode newInode = disk.getEmptyInode();
+				
+				if(newInode == null)
+				{
+					System.out.println("No empty inode available.");
+					return;
+				}
+				
+				boolean inodeFull = true;
 				
 				for(int i = 0; i < inode1.pointer().length; i++)
 				{
@@ -46,6 +55,12 @@ public class Cp extends Command
 					if(b.index() == 0)
 					{
 						b = disk.getEmptyBlock();
+						
+						if(b == null)
+						{
+							inodeFull = false;
+							continue;
+						}
 					}
 					else
 					{
@@ -54,16 +69,26 @@ public class Cp extends Command
 					
 					if(b.addEntry(entry0))
 					{
+						newInode.setInUse(true);
+						newInode.setType(Type.FILE);
+						newInode.rw();
 						inode1.pointer()[i] = b.index();
 						inode1.rw();
 						b.rw();
 						b.setInUse(true);
-						System.out.println(String.format("File \"%s\" copied to directory \"%s\".", args[0], args[1]));
+						System.out.println(String.format("File \"%s\" created.", args[0]));
 						return;
 					}
 				}
 				
-				System.out.println("Inode is full.");
+				if(inodeFull)
+				{
+					System.out.println("Inode is full.");
+				}
+				else
+				{
+					System.out.println("No empty block available.");
+				}
 			}
 		}
 		catch(IOException ex)

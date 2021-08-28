@@ -1,5 +1,6 @@
 package command;
 
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -47,7 +48,7 @@ public abstract class Command
 		this.aliases = aliases;
 	}
 	
-	public abstract void execute(String[] args);
+	public abstract void execute(String[] args) throws IOException;
 	
 	public String getName()
 	{

@@ -49,8 +49,7 @@ public class Rm extends Command
 						
 						if(dir.equalsIgnoreCase(entry.getName()))
 						{
-							Inode target = new Inode(entry.getIndex());
-							target.readFully();
+							Inode target = new Inode(entry.getIndex(), true);
 							
 							for(int k = 0; k < target.pointer().length; k++)
 							{

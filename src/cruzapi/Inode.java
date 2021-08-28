@@ -10,7 +10,14 @@ public class Inode
 {
 	public enum Type
 	{
-		FILE, DIR;
+		FILE((byte) 0), DIR((byte) 1);
+		
+		private byte value;
+		
+		private Type(byte value)
+		{
+			this.value = value;
+		}
 	}
 	
 	public static final int INODE_SIZE = 49;
@@ -18,6 +25,16 @@ public class Inode
 	private final int index;
 	private byte type;
 	private final int[] pointer = new int[12];
+	
+	public Inode(int index, boolean readFully) throws IOException
+	{
+		this(index);
+		
+		if(readFully)
+		{
+			readFully();
+		}
+	}
 	
 	public Inode(int index)
 	{
@@ -107,9 +124,19 @@ public class Inode
 		Arrays.fill(pointer, 0);
 	}
 	
+	public Type getType()
+	{
+		return type == 0 ? Type.DIR : Type.FILE;
+	}
+	
 	@Override
 	public String toString()
 	{
 		return "Inode [index=" + index + ", pointer=" + Arrays.toString(pointer) + "]";
+	}
+	
+	public void setType(Type type)
+	{
+		this.type = type.value;
 	}
 }

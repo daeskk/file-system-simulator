@@ -110,7 +110,7 @@ public class Disk
 		return true;
 	}
 	
-	private Block getEmptyBlock() throws IOException
+	public Block getEmptyBlock() throws IOException
 	{
 		try(RandomAccessFile file = new RandomAccessFile(this.file, "rw"))
 		{
@@ -123,6 +123,7 @@ public class Disk
 					return new Block(i + 1);
 				}
 			}
+			
 			return null;
 		}
 		catch(IOException e)
@@ -245,7 +246,13 @@ public class Disk
 	{
 		return true;
 	}
-
+	
+	public Inode getInodeByPath(Inode current, String[] path)
+	{
+		
+		return null;
+	}
+	
 	private boolean checkForSameName(String dir) throws IOException
 	{
 		for(int i = 0; i < currentInode.pointer().length; i++)
@@ -295,6 +302,8 @@ public class Disk
 		newBlock.setInUse(true);
 		newBlock.addEntry(entry);
 		
+		boolean inodeFull = true;
+		
 		for(int i = 0; i < currentInode.pointer().length; i++)
 		{
 			Block block = new Block(currentInode.pointer()[i]);
@@ -302,6 +311,12 @@ public class Disk
 			if(block.index() == 0)
 			{
 				block = getEmptyBlock();
+				
+				if(block == null)
+				{
+					inodeFull = false;
+					continue;
+				}
 			}
 			
 			block.readFully();
@@ -313,6 +328,8 @@ public class Disk
 			
 			if(block.addEntry(entry))
 			{
+				currentInode.pointer()[i] = block.index();
+				currentInode.rw();
 				block.setInUse(true);
 				target.setInUse(true);
 				block.rw();
@@ -323,8 +340,48 @@ public class Disk
 		}
 		
 		newBlock.setInUse(false);
-		System.out.println("Current inode's pointer is full.");
-
+		
+		if(inodeFull)
+		{
+			System.out.println("Current inode's pointer is full.");
+		}
+		else
+		{
+			System.out.println("No empty block available.");
+		}
+		
 		return false;
+	}
+	
+	public DirEntry getEntryByPath(DirEntry entry, final String[] path, int i) throws IOException
+	{
+		if(i == path.length)
+		{
+			return entry;
+		}
+		
+		Inode inode = new Inode(entry.getIndex(), true);
+		
+		for(int j = 0; j < inode.pointer().length; j++)
+		{
+			Block b = new Block(inode.pointer()[j]);
+			
+			if(b.index() == 0)
+			{
+				continue;
+			}
+			
+			b.readFully();
+			
+			for(DirEntry entries : b.getEntries(j == 0 ? 2 : 0))
+			{
+				if(entries.getName().equalsIgnoreCase(path[i]))
+				{
+					return getEntryByPath(entries, path, i + 1);
+				}
+			}
+		}
+		
+		return null;
 	}
 }
