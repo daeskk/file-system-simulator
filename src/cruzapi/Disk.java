@@ -246,16 +246,41 @@ public class Disk
 		return true;
 	}
 
-	public void mkdir(String dir) throws IOException
+	private boolean checkForSameName(String dir) throws IOException
+	{
+		for(int i = 0; i < currentInode.pointer().length; i++)
+		{
+			Block block = new Block(currentInode.pointer()[i]);
+
+			block.readFully();
+
+			for(DirEntry entry : block.getEntries())
+			{
+				if(dir.equalsIgnoreCase(entry.getName()))
+				{
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	public boolean mkdir(String dir) throws IOException
 	{
 		Inode target = getEmptyInode();
 		
 		if(target == null)
 		{
 			System.out.println("No empty inode available.");
-			return;
+			return false;
 		}
-		
+
+		if(checkForSameName(dir))
+		{
+			System.out.println("Directory already exists.");
+			return false;
+		}
+
 		DirEntry entry = new DirEntry(target.index(), dir);
 		
 		Block newBlock = getEmptyBlock();
@@ -263,7 +288,7 @@ public class Disk
 		if(newBlock == null)
 		{
 			System.out.println("No empty block available.");
-			return;
+			return false;
 		}
 		
 		target.addPointer(newBlock.index());
@@ -293,11 +318,13 @@ public class Disk
 				block.rw();
 				target.rw();
 				newBlock.rw();
-				return;
+				return true;
 			}
 		}
 		
 		newBlock.setInUse(false);
 		System.out.println("Current inode's pointer is full.");
+
+		return false;
 	}
 }
