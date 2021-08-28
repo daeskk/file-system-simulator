@@ -3,6 +3,7 @@ package cruzapi;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.util.Arrays;
 
 public class Disk
 {
@@ -12,28 +13,18 @@ public class Disk
 		
 		public int getPosition() throws IOException
 		{
-			switch(this)
-			{
-			case BLOCK:
-				return Main.getDisk().getSuperBlock().getBlockBitmapPosition();
-			case INODE:
-				return Main.getDisk().getSuperBlock().getInodeBitmapPosition();
-			}
-			
-			throw new IOException();
+			return switch (this) {
+				case BLOCK -> Main.getDisk().getSuperBlock().getBlockBitmapPosition();
+				case INODE -> Main.getDisk().getSuperBlock().getInodeBitmapPosition();
+			};
 		}
 		
 		public int getSize() throws IOException
 		{
-			switch(this)
-			{
-			case BLOCK:
-				return Main.getDisk().getSuperBlock().getBlockBitmapSize();
-			case INODE:
-				return Main.getDisk().getSuperBlock().getInodeBitmapSize();
-			}
-			
-			throw new IOException();
+			return switch (this) {
+				case BLOCK -> Main.getDisk().getSuperBlock().getBlockBitmapSize();
+				case INODE -> Main.getDisk().getSuperBlock().getInodeBitmapSize();
+			};
 		}
 	}
 	
@@ -48,8 +39,14 @@ public class Disk
 	
 	public void format()
 	{
-		file.delete();
-		create();
+		if(!file.delete())
+		{
+			throw new RuntimeException("Something went wrong.");
+		}
+		if(!create())
+		{
+			throw new RuntimeException("Something went wrong.");
+		}
 	}
 	
 	public boolean create()
@@ -64,25 +61,17 @@ public class Disk
 			
 			
 			byte[] inodeBitmap = new byte[sb.getInodeBitmapSize()];
-			
-			for(int i = 0; i < inodeBitmap.length; i++)
-			{
-				inodeBitmap[i] = Byte.MIN_VALUE;
-			}
+
+			Arrays.fill(inodeBitmap, Byte.MIN_VALUE);
 			
 			file.write(inodeBitmap);
-			
-			
+
 			byte[] blockBitmap = new byte[sb.getBlockBitmapSize()];
-			
-			for(int i = 0; i < blockBitmap.length; i++)
-			{
-				blockBitmap[i] = Byte.MIN_VALUE;
-			}
+
+			Arrays.fill(blockBitmap, Byte.MIN_VALUE);
 			
 			file.write(blockBitmap);
-			
-			
+
 			for(int i = 1; i <= sb.getInodes(); i++)
 			{
 				for(int j = 0; j < 13; j++)
@@ -99,7 +88,8 @@ public class Disk
 			
 			currentInode = getEmptyInode();
 			Block block = getEmptyBlock();
-			
+
+			assert block != null;
 			currentInode.addPointer(block.index());
 			block.addEntry(new DirEntry(currentInode.index(), "/"));
 			block.addEntry(new DirEntry(currentInode.index(), "/"));
@@ -109,9 +99,7 @@ public class Disk
 			
 			block.setInUse(true);
 			block.rw();
-			
-			
-			
+
 			boolean[] blockBitmap1 = getBitmap(BitmapType.BLOCK);
 		}
 		catch(IOException e)
@@ -135,7 +123,6 @@ public class Disk
 					return new Block(i + 1);
 				}
 			}
-			
 			return null;
 		}
 		catch(IOException e)

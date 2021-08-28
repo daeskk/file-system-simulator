@@ -44,7 +44,6 @@ public class Inode
 				return true;
 			}
 		}
-		
 		return false;
 	}
 	
@@ -87,7 +86,7 @@ public class Inode
 		
 		try(RandomAccessFile access = new RandomAccessFile(disk.getFile(), "rw");)
 		{
-			access.seek(sb.getSize() + sb.getInodeBitmapSize() + sb.getBlockBitmapSize() + (index - 1) * INODE_SIZE);
+			access.seek(sb.getSize() + sb.getInodeBitmapSize() + sb.getBlockBitmapSize() + (long) (index - 1) * INODE_SIZE);
 			access.writeByte(type);
 			
 			for(int j : pointer)
@@ -104,11 +103,8 @@ public class Inode
 	public void clear()
 	{
 		type = 0;
-		
-		for(int i = 0; i < pointer.length; i++)
-		{
-			pointer[i] = 0;
-		}
+
+		Arrays.fill(pointer, 0);
 	}
 	
 	@Override

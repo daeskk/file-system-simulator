@@ -27,14 +27,7 @@ public class Main
 		disk.create();
 		
 		System.out.println("Done! (" + (System.currentTimeMillis() - time) + " ms)");
-		
-//		for(int i = 0; i < 120; i++)
-//		{
-//			System.out.println(i);
-//			disk.mkdir("test" + i);
-//		}
-		
-		
+
 		Command.register(new Exit("exit"));
 		Command.register(new Mkdir("mkdir"));
 		Command.register(new Ls("ls"));
@@ -47,15 +40,13 @@ public class Main
 		
 		while(loop)
 		{
+			System.out.print("cruzAPI@Linux:~$ ");
 			String[] line = scanner.nextLine().split(" ");
 			String[] args = new String[line.length - 1];
 			
 			String name = line[0];
-			
-			for(int i = 1; i < line.length; i++)
-			{
-				args[i - 1] = line[i];
-			}
+
+			System.arraycopy(line, 1, args, 0, line.length - 1);
 			
 			Command command = Command.getCommand(name);
 			
