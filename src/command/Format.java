@@ -14,7 +14,7 @@ public class Format extends Command
 	{
 		long time = System.currentTimeMillis();
 		
-		System.out.println("Formating disk...");
+		System.out.println("Formatting disk...");
 		Main.getDisk().format();
 		System.out.println("Done! (" + (System.currentTimeMillis() - time) + " ms)");
 	}

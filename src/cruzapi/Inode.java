@@ -52,17 +52,16 @@ public class Inode
 		return pointer;
 	}
 	
-	public boolean addPointer(int index)
+	public void addPointer(int index)
 	{
 		for(int i = 0; i < pointer.length; i++)
 		{
 			if(pointer[i] == 0)
 			{
 				pointer[i] = index;
-				return true;
+				return;
 			}
 		}
-		return false;
 	}
 	
 	public void readFully() throws IOException

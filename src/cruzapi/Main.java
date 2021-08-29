@@ -46,7 +46,7 @@ public class Main
 		
 		while(loop)
 		{
-			System.out.print(String.format("cruzAPI@Linux:~%s$ ", Pwd.pwd(disk)));
+			System.out.printf("cruzAPI@Linux:~%s$ ", Pwd.pwd(disk));
 			String[] line = scanner.nextLine().split(" ");
 			String[] args = new String[line.length - 1];
 			

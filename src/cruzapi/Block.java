@@ -13,7 +13,7 @@ import cruzapi.Disk.BitmapType;
 
 public class Block
 {
-	private int index;
+	private final int index;
 	public byte[] data = new byte[1 << 12];
 	
 	public Block(int index, boolean readFully) throws IOException

@@ -83,3 +83,31 @@ public class Mv extends Command
 		return null;
 	}
 }
+
+//				Inode inode1 = new Inode(entry1.getIndex(), true);
+//
+//				for(int i = 0; i < inode1.pointer().length; i++)
+//				{
+//					Block b = new Block(inode1.pointer()[i]);
+//
+//					if(b.index() == 0)
+//					{
+//						b = disk.getEmptyBlock();
+//					}
+//					else
+//					{
+//						b.readFully();
+//					}
+//
+//					if(b.addEntry(entry0))
+//					{
+//						inode1.pointer()[i] = b.index();
+//						inode1.rw();
+//						b.rw();
+//						b.setInUse(true);
+//						System.out.println(String.format("File \"%s\" copied to directory \"%s\".", args[0], args[1]));
+//						return;
+//					}
+//				}
+//
+//				System.out.println("Inode is full.");

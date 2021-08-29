@@ -112,24 +112,16 @@ public class Disk
 	
 	public Block getEmptyBlock() throws IOException
 	{
-		try(RandomAccessFile file = new RandomAccessFile(this.file, "rw"))
+		boolean[] bitmap = getBitmap(BitmapType.BLOCK);
+
+		for(int i = 0; i < bitmap.length; i++)
 		{
-			boolean[] bitmap = getBitmap(BitmapType.BLOCK);
-			
-			for(int i = 0; i < bitmap.length; i++)
+			if(!bitmap[i])
 			{
-				if(!bitmap[i])
-				{
-					return new Block(i + 1);
-				}
+				return new Block(i + 1);
 			}
-			
-			return null;
 		}
-		catch(IOException e)
-		{
-			throw e;
-		}
+		return null;
 	}
 
 	public void rwBitmap(final BitmapType type, final int index, final boolean value) throws IOException
@@ -151,10 +143,6 @@ public class Disk
 			
 			file.seek(type.getPosition() + index / 8);
 			file.write(b2);
-		}
-		catch(IOException ex)
-		{
-			throw ex;
 		}
 	}
 	
@@ -183,32 +171,20 @@ public class Disk
 			
 			return bitmap;
 		}
-		catch(IOException ex)
-		{
-			throw ex;
-		}
 	}
 	
 	public Inode getEmptyInode() throws IOException
 	{
-		try(RandomAccessFile file = new RandomAccessFile(this.file, "rw"))
+		boolean[] bitmap = getBitmap(BitmapType.INODE);
+
+		for(int i = 0; i < bitmap.length; i++)
 		{
-			boolean[] bitmap = getBitmap(BitmapType.INODE);
-			
-			for(int i = 0; i < bitmap.length; i++)
+			if(!bitmap[i])
 			{
-				if(!bitmap[i])
-				{
-					return new Inode(i + 1);
-				}
+				return new Inode(i + 1);
 			}
-			
-			return null;
 		}
-		catch(IOException e)
-		{
-			throw e;
-		}
+		return null;
 	}
 	
 	public SuperBlock getSuperBlock() throws IOException
@@ -220,10 +196,6 @@ public class Disk
 			final int blockSize = file.readInt();
 			
 			return new SuperBlock(magicNumber, blocks, blockSize);
-		}
-		catch(IOException e)
-		{
-			throw e;
 		}
 	}
 	

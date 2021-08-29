@@ -54,8 +54,7 @@ public class Pwd extends Command
 		while(d.getIndex() != 1)
 		{
 			list.add(d.getName());
-			Inode previous = new Inode(dd.getIndex(), true);
-			current = previous;
+			current = new Inode(dd.getIndex(), true);
 			block = new Block(current.pointer()[0]);
 			block.readFully();
 			d = block.getEntry(0);

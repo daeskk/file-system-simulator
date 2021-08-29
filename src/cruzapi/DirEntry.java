@@ -2,7 +2,7 @@ package cruzapi;
 
 public class DirEntry
 {
-	private int index;
+	private final int index;
 	public final char[] name = new char[14];
 	
 	public DirEntry(int index)

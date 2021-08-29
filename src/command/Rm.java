@@ -1,7 +1,6 @@
 package command;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import cruzapi.Block;
@@ -82,17 +81,17 @@ public class Rm extends Command
 							b.setEntry(j, new DirEntry(0));
 							b.rw();
 							
-							System.out.println(String.format("Directory \"%s\" removed.", dir));
+							System.out.printf("File \"%s\" removed.%n", dir);
 							return;
 						}
 					}
 				}
 				
-				System.out.println(String.format("Directory \"%s\" not found.", dir));
+				System.out.printf("File \"%s\" not found.%n", dir);
 			}
 			else
 			{
-				System.out.println("Wrong syntax! Try: mkdir <name>");
+				System.out.println("Wrong syntax! Try: rm <name>");
 			}
 		}
 		catch(IOException ex)

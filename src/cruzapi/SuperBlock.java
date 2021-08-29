@@ -29,8 +29,6 @@ public class SuperBlock
 		return getSize() + getInodeBitmapSize();
 	}
 	
-	
-	
 	public int getSize()
 	{
 		return SUPER_BLOCK_SIZE;

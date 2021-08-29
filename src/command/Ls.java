@@ -55,7 +55,7 @@ public class Ls extends Command
 					return;
 				}
 				
-				for(String name : entries.stream().map(name -> name.getName()).collect(Collectors.toList()))
+				for(String name : entries.stream().map(DirEntry::getName).collect(Collectors.toList()))
 				{
 					System.out.printf("%s\t", name);
 				}
