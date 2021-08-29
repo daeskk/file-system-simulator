@@ -2,7 +2,7 @@ package cruzapi;
 
 public class DirEntry
 {
-	private final int index;
+	private int index;
 	public final char[] name = new char[14];
 	
 	public DirEntry(int index)
@@ -14,6 +14,14 @@ public class DirEntry
 	{
 		this.index = index;
 		
+		for(int i = 0; i < this.name.length && i < name.length(); i++)
+		{
+			this.name[i] = name.charAt(i);
+		}
+	}
+	
+	public void setName(String name)
+	{
 		for(int i = 0; i < this.name.length && i < name.length(); i++)
 		{
 			this.name[i] = name.charAt(i);

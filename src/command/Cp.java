@@ -49,6 +49,7 @@ public class Cp extends Command
 			}
 
 			byte[] data;
+			
 			if(obj0.getClass() == File.class)
 			{
 				try(FileInputStream fin = new FileInputStream((File) obj0))

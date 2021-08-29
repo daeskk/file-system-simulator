@@ -13,8 +13,8 @@ import cruzapi.Disk.BitmapType;
 
 public class Block
 {
-	private final int index;
-	public byte[] data = new byte[1 << 12];
+	private int index;
+	public byte[] data;
 	
 	public Block(int index, boolean readFully) throws IOException
 	{
@@ -26,9 +26,10 @@ public class Block
 		}
 	}
 	
-	public Block(int index)
+	public Block(int index) throws IOException
 	{
 		this.index = index;
+		data = new byte[Main.getDisk().getSuperBlock().getBlockSize()];
 	}
 	
 	public int index()
@@ -84,10 +85,6 @@ public class Block
 			
 			return true;
 		}
-		catch(IOException ex)
-		{
-			throw ex;
-		}
 	}
 	
 	public DirEntry getEntry(int index) throws IOException
@@ -112,10 +109,6 @@ public class Block
 			}
 			
 			return entry;
-		}
-		catch(IOException ex)
-		{
-			throw ex;
 		}
 	}
 	
@@ -263,8 +256,8 @@ public class Block
 		return true;
 	}
 	
-	public void clear()
+	public void clear() throws IOException
 	{
-		data = new byte[1 << 12];
+		data = new byte[Main.getDisk().getSuperBlock().getBlockSize()];
 	}
 }
