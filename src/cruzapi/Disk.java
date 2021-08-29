@@ -272,20 +272,20 @@ public class Disk
 		return false;
 	}
 
-	public boolean mkdir(String dir) throws IOException
+	public void mkdir(String dir) throws IOException
 	{
 		Inode target = getEmptyInode();
 		
 		if(target == null)
 		{
 			System.out.println("No empty inode available.");
-			return false;
+			return;
 		}
 
 		if(checkForSameName(dir))
 		{
 			System.out.println("Directory already exists.");
-			return false;
+			return;
 		}
 
 		DirEntry entry = new DirEntry(target.index(), dir);
@@ -295,7 +295,7 @@ public class Disk
 		if(newBlock == null)
 		{
 			System.out.println("No empty block available.");
-			return false;
+			return;
 		}
 		
 		target.addPointer(newBlock.index());
@@ -335,7 +335,7 @@ public class Disk
 				block.rw();
 				target.rw();
 				newBlock.rw();
-				return true;
+				return;
 			}
 		}
 		
@@ -349,8 +349,6 @@ public class Disk
 		{
 			System.out.println("No empty block available.");
 		}
-		
-		return false;
 	}
 	
 	public DirEntry getEntryByPath(DirEntry entry, final String[] path, int i) throws IOException

@@ -28,7 +28,8 @@ public class Touch extends Command
 				
 				Inode arg0 = args[0].startsWith("/") ? new Inode(1, true) : disk.getCurrentInode();
 				
-				DirEntry entry0 = disk.getEntryByPath(new Block(arg0.pointer()[0], true).getEntry(0), Arrays.stream(args[0].split("/")).filter(x -> !x.isEmpty()).toArray(String[]::new), 0);
+				String[] original = Arrays.stream(args[0].split("/")).filter(x -> !x.isEmpty()).toArray(String[]::new);
+				DirEntry entry0 = disk.getEntryByPath(new Block(arg0.pointer()[0], true).getEntry(0), Arrays.copyOf(original, original.length - 1), 0);
 				
 				if(entry0 == null)
 				{
@@ -45,6 +46,8 @@ public class Touch extends Command
 					System.out.println("No empty inode available.");
 					return;
 				}
+				
+				DirEntry newEntry = new DirEntry(newInode.index(), original[original.length - 1]);
 				
 				boolean inodeFull = true;
 				
@@ -67,7 +70,7 @@ public class Touch extends Command
 						b.readFully();
 					}
 					
-					if(b.addEntry(entry0))
+					if(b.addEntry(newEntry))
 					{
 						newInode.setInUse(true);
 						newInode.setType(Type.FILE);
@@ -76,7 +79,7 @@ public class Touch extends Command
 						inode1.rw();
 						b.rw();
 						b.setInUse(true);
-						System.out.println(String.format("File \"%s\" created.", args[0]));
+						System.out.printf("File \"%s\" created.%n", args[0]);
 						return;
 					}
 				}

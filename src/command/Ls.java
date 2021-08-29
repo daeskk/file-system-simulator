@@ -50,7 +50,17 @@ public class Ls extends Command
 				entries.remove(0);
 				entries.remove(0);
 				
-				System.out.println(entries.stream().map(name -> name.getName()).collect(Collectors.toList()));
+				if(entries.isEmpty())
+				{
+					return;
+				}
+				
+				for(String name : entries.stream().map(name -> name.getName()).collect(Collectors.toList()))
+				{
+					System.out.printf("%s\t", name);
+				}
+				
+				System.out.println();
 			}
 			else
 			{

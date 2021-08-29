@@ -24,10 +24,7 @@ public class Mkdir extends Command
 			
 			try
 			{
-				if(Main.getDisk().mkdir(args[0]))
-				{
-					System.out.printf("Directory \"%s\" created.%n", args[0]);
-				}
+				Main.getDisk().mkdir(args[0]);
 			}
 			catch(IOException e)
 			{

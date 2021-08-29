@@ -2,9 +2,11 @@ package command;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import cruzapi.*;
+import cruzapi.Inode.Type;
 
 public class Cd extends Command
 {
@@ -35,38 +37,33 @@ public class Cd extends Command
 			}
 			else if(dir.equals(".."))
 			{
-				Block block = new Block(current.pointer()[0]);
-				block.readFully();
+				Block block = new Block(current.pointer()[0], true);
 				
-				current = new Inode(block.getEntry(1).getIndex(), true);
-				
-				disk.setCurrentInode(current);
-				
-				System.out.println("Changed to \"" +  block.getEntries().get(1).getName() + "\" dir.");
+				disk.setCurrentInode(new Inode(block.getEntry(1).getIndex(), true));
 			}
 			else
 			{
-				for(int i = 0; i < current.pointer().length; i++)
+				Inode arg0 = args[0].startsWith("/") ? new Inode(1, true) : disk.getCurrentInode();
+				
+				DirEntry entry0 = disk.getEntryByPath(new Block(arg0.pointer()[0], true).getEntry(0), Arrays.stream(args[0].split("/")).filter(x -> !x.isEmpty()).toArray(String[]::new), 0);
+				
+				if(entry0 == null)
 				{
-					Block block = new Block(current.pointer()[i]);
+					System.out.printf("bash: cd: %s: No such file or directory%n", dir);
+				}
+				else
+				{
+					current = new Inode(entry0.getIndex(), true);
 					
-					if(block.index() == 0) continue;
-					block.readFully();
-					
-					for(DirEntry entry : block.getEntries(i == 0 ? 2 : 0))
+					if(current.getType() == Type.FILE)
 					{
-						if(dir.equalsIgnoreCase(entry.getName()))
-						{
-							current = new Inode(entry.getIndex());
-							current.readFully();
-							disk.setCurrentInode(current);
-							System.out.println("Changed to \"" +  entry.getName() + "\" directory.");
-							return;
-						}
+						System.out.printf("bash: cd: %s: Not a directory%n", dir);
+					}
+					else
+					{
+						disk.setCurrentInode(current);
 					}
 				}
-				
-				System.out.printf("Directory \"%s\" not found.%n", dir);
 			}
 		}
 		else

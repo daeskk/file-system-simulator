@@ -10,7 +10,7 @@ public class Inode
 {
 	public enum Type
 	{
-		FILE((byte) 0), DIR((byte) 1);
+		FILE((byte) 1), DIR((byte) 0);
 		
 		private byte value;
 		
