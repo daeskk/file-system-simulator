@@ -249,7 +249,6 @@ public class Disk
 	
 	public Inode getInodeByPath(Inode current, String[] path)
 	{
-		
 		return null;
 	}
 	

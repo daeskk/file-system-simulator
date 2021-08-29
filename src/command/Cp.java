@@ -98,7 +98,7 @@ public class Cp extends Command
 					}
 					catch(IndexOutOfBoundsException ex)
 					{
-						
+						System.out.println(ex.getMessage());
 					}
 				}
 				
@@ -136,7 +136,6 @@ public class Cp extends Command
 					
 					DirEntry newEntry = new DirEntry(newInode.index(), path1[path1.length - 1]);
 					
-					
 					Integer[] pointer = Arrays.stream(inode.pointer()).boxed().toArray(Integer[]::new);
 					
 					Arrays.sort(pointer, Collections.reverseOrder());
@@ -160,7 +159,7 @@ public class Cp extends Command
 						
 						if(b.addEntry(newEntry))
 						{
-							List<Block> newBlocks = new ArrayList<Block>();
+							List<Block> newBlocks = new ArrayList<>();
 							
 							Block b1 = null;
 							
@@ -194,15 +193,13 @@ public class Cp extends Command
 							b.rw();
 							
 							newInode.rw();
-							
+							newInode.setInUse(true);
+
 							for(Block b2 : newBlocks)
 							{
 								b2.rw();
 								b2.setInUse(true);
 							}
-							
-							System.out.println("File copied");
-							
 							return;
 						}
 					}

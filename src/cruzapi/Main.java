@@ -42,13 +42,6 @@ public class Main
 		Command.register(new Touch("touch"));
 		Command.register(new Bitmap("bitmap"));
 		
-//		for(int i = 0 ; i < 14; i++)
-//		{
-//			disk.mkdir("test" + i);
-//			System.out.println(i);
-//		}
-		
-		
 		Scanner scanner = new Scanner(System.in);
 		
 		while(loop)

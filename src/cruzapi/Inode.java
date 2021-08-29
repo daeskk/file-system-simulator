@@ -12,7 +12,7 @@ public class Inode
 	{
 		FILE((byte) 1), DIR((byte) 0);
 		
-		private byte value;
+		private final byte value;
 		
 		private Type(byte value)
 		{

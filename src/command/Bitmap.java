@@ -22,6 +22,14 @@ public class Bitmap extends Command
         {
             if(args[0].equalsIgnoreCase("inode"))
             {
+                boolean[] bitmap = disk.getBitmap(BitmapType.INODE);
+                for(int i = 0; i < bitmap.length; i++)
+                {
+                    if(bitmap[i])
+                    {
+                        System.out.println(bitmap[i] + " " + i);
+                    }
+                }
             }
             else if(args[0].equalsIgnoreCase("block"))
             {
