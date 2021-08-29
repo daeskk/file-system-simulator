@@ -3,6 +3,7 @@ package cruzapi;
 import java.io.IOException;
 import java.util.Scanner;
 
+import command.Bitmap;
 import command.Cd;
 import command.Command;
 import command.Cp;
@@ -39,6 +40,7 @@ public class Main
 		Command.register(new Format("format"));
 		Command.register(new Rm("rm"));
 		Command.register(new Touch("touch"));
+		Command.register(new Bitmap("bitmap"));
 		
 //		for(int i = 0 ; i < 14; i++)
 //		{

@@ -74,6 +74,8 @@ public class Disk
 
 			for(int i = 1; i <= sb.getInodes(); i++)
 			{
+				file.writeByte(0);
+				
 				for(int j = 0; j < 13; j++)
 				{
 					file.writeInt(0);
@@ -88,7 +90,7 @@ public class Disk
 			
 			currentInode = getEmptyInode();
 			Block block = getEmptyBlock();
-
+			
 			assert block != null;
 			currentInode.addPointer(block.index());
 			block.addEntry(new DirEntry(currentInode.index(), "/"));
@@ -99,8 +101,6 @@ public class Disk
 			
 			block.setInUse(true);
 			block.rw();
-
-			boolean[] blockBitmap1 = getBitmap(BitmapType.BLOCK);
 		}
 		catch(IOException e)
 		{

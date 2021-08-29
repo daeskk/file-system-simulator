@@ -20,9 +20,10 @@ public class Inode
 		}
 	}
 	
-	public static final int INODE_SIZE = 49;
+	public static final int INODE_SIZE = 53;
 	
 	private final int index;
+	private int size;
 	private byte type;
 	private final int[] pointer = new int[12];
 	
@@ -73,6 +74,7 @@ public class Inode
 		{
 			access.skipBytes(sb.getSize() + sb.getInodeBitmapSize() + sb.getBlockBitmapSize() + (index - 1) * INODE_SIZE);
 			type = access.readByte();
+			size = access.readInt();
 			
 			for(int i = 0; i < pointer.length; i++)
 			{
@@ -105,6 +107,7 @@ public class Inode
 		{
 			access.seek(sb.getSize() + sb.getInodeBitmapSize() + sb.getBlockBitmapSize() + (long) (index - 1) * INODE_SIZE);
 			access.writeByte(type);
+			access.writeInt(size);
 			
 			for(int j : pointer)
 			{
@@ -132,11 +135,21 @@ public class Inode
 	@Override
 	public String toString()
 	{
-		return "Inode [index=" + index + ", pointer=" + Arrays.toString(pointer) + "]";
+		return "Inode [index=" + index + ", type=" + getType().name() + ", pointer=" + Arrays.toString(pointer) + "]";
 	}
 	
 	public void setType(Type type)
 	{
 		this.type = type.value;
+	}
+	
+	public int getSize()
+	{
+		return size;
+	}
+	
+	public void setSize(int size)
+	{
+		this.size = size;
 	}
 }

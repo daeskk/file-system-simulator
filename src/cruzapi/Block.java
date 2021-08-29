@@ -14,7 +14,7 @@ import cruzapi.Disk.BitmapType;
 public class Block
 {
 	private int index;
-	private byte[] data = new byte[1 << 12];
+	public byte[] data = new byte[1 << 12];
 	
 	public Block(int index, boolean readFully) throws IOException
 	{
@@ -248,6 +248,19 @@ public class Block
 		{
 			throw ex;
 		}
+	}
+	
+	public boolean isClear()
+	{
+		for(byte b : data)
+		{
+			if(b != 0)
+			{
+				return false;
+			}
+		}
+		
+		return true;
 	}
 	
 	public void clear()

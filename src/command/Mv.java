@@ -7,7 +7,6 @@ import cruzapi.DirEntry;
 import cruzapi.Disk;
 import cruzapi.Inode;
 import cruzapi.Main;
-import cruzapi.Inode.Type;
 
 public class Mv extends Command
 {
@@ -45,7 +44,6 @@ public class Mv extends Command
 					b.readFully();
 					
 					b.addEntry(entry0);
-					
 				}
 			}
 		}
