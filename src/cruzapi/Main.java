@@ -11,6 +11,7 @@ import command.Exit;
 import command.Format;
 import command.Ls;
 import command.Mkdir;
+import command.Mv;
 import command.Pwd;
 import command.Rm;
 import command.Touch;
@@ -39,6 +40,7 @@ public class Main
 		Command.register(new Pwd("pwd"));
 		Command.register(new Format("format"));
 		Command.register(new Rm("rm"));
+		Command.register(new Mv("mv"));
 		Command.register(new Touch("touch"));
 		Command.register(new Bitmap("bitmap"));
 		
@@ -47,6 +49,7 @@ public class Main
 		while(loop)
 		{
 			System.out.printf("cruzAPI@Linux:~%s$ ", Pwd.pwd(disk));
+			
 			String[] line = scanner.nextLine().split(" ");
 			String[] args = new String[line.length - 1];
 			
@@ -56,13 +59,21 @@ public class Main
 			
 			Command command = Command.getCommand(name);
 			
-			if(command != null)
+			
+			try
 			{
-				command.execute(args);
+				if(command != null)
+				{
+					command.execute(args);
+				}
+				else
+				{
+					System.out.println("Unknown command.");
+				}
 			}
-			else
+			catch(Exception ex)
 			{
-				System.out.println("Unknown command.");
+				System.out.println("An unexpected error has occurred.");
 			}
 		}
 		

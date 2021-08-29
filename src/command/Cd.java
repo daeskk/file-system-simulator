@@ -43,7 +43,9 @@ public class Cd extends Command
 			{
 				Inode arg0 = args[0].startsWith("/") ? new Inode(1, true) : disk.getCurrentInode();
 				
-				DirEntry entry0 = disk.getEntryByPath(new Block(arg0.pointer()[0], true).getEntry(0), Arrays.stream(args[0].split("/")).filter(x -> !x.isEmpty()).toArray(String[]::new), 0);
+				String[] path0 = Arrays.stream(args[0].split("/")).filter(x -> !x.isEmpty()).toArray(String[]::new);
+				
+				DirEntry entry0 = disk.getEntryByPath(new Block(arg0.pointer()[0], true).getEntry(0), path0, 0);
 				
 				if(entry0 == null)
 				{
