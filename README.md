@@ -3,6 +3,7 @@
 This project is a simulation of the EXT2 file system in Java. Run it with either eclipse or Intellij. It creates a virtual disk with ~100MB on the desktop (you can change it) to store the data copied to it. It supports at max files with 49152 bytes.
 
 - Available operations:
+
 |COMMAND|ACTION|
 |----------|-------------------
 |`cd`|change the current directory
