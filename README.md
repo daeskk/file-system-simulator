@@ -4,7 +4,7 @@ This project is a simulation of the EXT2 file system in Java. Run it with either
 
 - Available operations:
 |COMMAND|ACTION|
-|----------|------
+|----------|-------------------
 |`cd`|change the current directory
 |`mkdir`|create a new directory
 |`rm`|delete a file or an empty directory
