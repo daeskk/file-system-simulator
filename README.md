@@ -1,4 +1,4 @@
-# Simulated-File-System
+# file-system-simulator
 
 This project is a simulation of the EXT2 file system in Java. Run it with either eclipse or Intellij. It creates a virtual disk with ~100MB on the desktop to store the files copied to it. It supports at max files with 49152 bytes.
 
